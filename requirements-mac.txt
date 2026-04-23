@@ -1,0 +1,22 @@
+# GPT-SoVITS 核心依赖（Mac ARM64 优化版）
+# 跳过从源码编译困难的包
+
+numpy<2.0
+scipy
+librosa==0.10.2
+numba
+tqdm
+transformers>=4.43,<=4.50
+peft<0.18.0
+accelerate
+sentencepiece
+pydub
+pyyaml
+requests
+torchaudio
+soundfile
+audioread
+joblib
+scikit-learn
+threadpoolctl
+llvmlite
