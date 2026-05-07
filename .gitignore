@@ -1,0 +1,31 @@
+# Model weights (download from Releases)
+*.pth
+*.ckpt
+
+# Reference audio (download from Releases)
+*.wav
+*.mp3
+
+# Output
+output_*.wav
+*.wav
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
