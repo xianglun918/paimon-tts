@@ -3,6 +3,8 @@
 <h1>🎙️ Paimon-TTS</h1>
 <p><b>Finetuned Character Voice Models · Powered by GPT-SoVITS</b></p>
 
+<p><b>English</b> | <a href="./README_CN.md">中文简体</a></p>
+
 <a href="https://github.com/xianglun918/paimon-tts/releases"><img src="https://img.shields.io/github/v/release/xianglun918/paimon-tts?style=for-the-badge&logo=github&color=blue" /></a>
 <a href="https://github.com/xianglun918/paimon-tts/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-green.svg?style=for-the-badge&logo=opensourceinitiative" /></a>
 <a href="#"><img src="https://img.shields.io/badge/python-3.10+-blue?style=for-the-badge&logo=python" /></a>
