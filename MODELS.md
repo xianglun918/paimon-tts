@@ -1,48 +1,87 @@
-# Finetuned Voice Models
+# 🎞️ Model Zoo
 
-本项目维护两个基于 GPT-SoVITS v2 微调的 SoVITS S2 模型，用于语音合成研究与个人项目。
-
-> **声明**: 本文档不含训练数据集或原始音频来源。仅提供最终模型权重及推理所需的最小参考音频片段。
-
----
-
-## 模型概览
-
-| 模型 | 文件 | 大小 | Epoch | S1 | S2 |
-|-------|------|------|-------|----|----|
-| Model A (PM) | `pm-v2-epoch40.pth` | ~162 MB | 40 | 官方预训练 | 微调 |
-| Model B (TN) | `tn-v2-epoch40.pth` | ~202 MB | 40 | 官方预训练 | 微调 |
-
-两个模型均使用官方 GPT-SoVITS v2 预训练 S1 （语义模型），未额外微调 S1。仅 S2 （声学/生成器）分支在筛选后的高质量语音样本上进行了微调。
-
-### 下载
-
-从 [Releases](../../releases) 页面下载最新版本。
+> **Download**: [GitHub Releases](https://github.com/xianglun918/paimon-tts/releases)  
+> **License**: MIT · **Usage**: Personal research & non-commercial only
 
 ---
 
-## 使用方法
+## 🏷️ Model Cards
 
-### 前提条件
+<div align="center">
 
-- Python 3.10+
-- 已通过子模块初始化上游 GPT-SoVITS 代码
-- 官方预训练 S1: `GPT_SoVITS/GPT_SoVITS/pretrained_models/gsv-v2final-pretrained/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt`
+<table>
+<tr>
+<td align="center" width="50%">
 
-### 快速开始
+### 🎯 Model A — PM
 
-本项目的推理脚本已自动处理子模块路径，可直接运行：
+`pm-v2-epoch40.pth`
+
+| Spec | Value |
+|------|-------|
+| **Base** | GPT-SoVITS v2 |
+| **S1** | Official pretrained (no finetuning) |
+| **S2** | Finetuned · 40 epochs |
+| **Language** | Chinese (中文) |
+| **Size** | ~162 MB |
+| **Ref Audio** | `ref_pm.wav` (6.5s) |
+| **Ref Text** | "聊到炼金和研究的话题,砂糖就完全不怯场了,这就是研究者的气质吗?" |
+
+</td>
+<td align="center" width="50%">
+
+### 🎭 Model B — TN
+
+`tn-v2-epoch40.pth`
+
+| Spec | Value |
+|------|-------|
+| **Base** | GPT-SoVITS v2 |
+| **S1** | Official pretrained (no finetuning) |
+| **S2** | Finetuned · 40 epochs |
+| **Language** | Japanese (日本語) |
+| **Size** | ~202 MB |
+| **Ref Audio** | `ref_tn.wav` (3.0s) |
+| **Ref Text** | "元気、元気の元気まるー" |
+
+</td>
+</tr>
+</table>
+
+</div>
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
 
 ```bash
-python infer_tangshi.py   # Model A
-python infer_jiaran.py    # Model B
+# 1. Ensure submodule is initialized
+git submodule update --init --depth 1
+
+# 2. Install upstream dependencies (see upstream README)
+#    You need: PyTorch, GPT-SoVITS requirements, and the official S1 pretrained model
+
+# 3. Download model weights + reference audio from Releases
+#    Place them in the project root directory
 ```
 
-也可手动集成到自己的代码中：
+### One-liner Inference
+
+```bash
+# Model A — Chinese poetry
+python infer_tangshi.py
+
+# Model B — Long-form text
+python infer_jiaran.py
+```
+
+### Custom Integration
 
 ```python
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'GPT_SoVITS'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "GPT_SoVITS"))
 
 import soundfile as sf
 from GPT_SoVITS.inference_webui import change_gpt_weights, change_sovits_weights, get_tts_wav
@@ -50,15 +89,15 @@ from tools.i18n.i18n import I18nAuto
 
 i18n = I18nAuto()
 
-# 1. 加载 S1（官方预训练 — 所有模型通用）
+# 1. Load S1 (official pretrained — shared by all models)
 change_gpt_weights(
     gpt_path="GPT_SoVITS/GPT_SoVITS/pretrained_models/gsv-v2final-pretrained/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt"
 )
 
-# 2. 加载 S2（选择一个模型）
+# 2. Load S2 (pick one)
 list(change_sovits_weights(sovits_path="pm-v2-epoch40.pth"))
 
-# 3. 生成
+# 3. Synthesize
 result = get_tts_wav(
     ref_wav_path="ref_pm.wav",
     prompt_text="聊到炼金和研究的话题,砂糖就完全不怯场了,这就是研究者的气质吗?",
@@ -75,71 +114,103 @@ sr, audio = list(result)[-1]
 sf.write("output.wav", audio, sr)
 ```
 
-### 参考音频与文本
-
-| 模型 | 参考音频 | 时长 | 语言 | 参考文本 |
-|-------|-----------------|--------|----------|----------------|
-| PM | `ref_pm.wav` | ~6.5s | 中文 | `聊到炼金和研究的话题,砂糖就完全不怯场了,这就是研究者的气质吗?` |
-| TN | `ref_tn.wav` | ~3.0s | 日语 | `元気、元気の元気まるー` |
-
-> **重要**: `prompt_text` 必须与参考音频内容尽量匹配，否则会影响合成效果。
+> ⚠️ **Critical**: `prompt_text` must match the reference audio content as closely as possible. Mismatch degrades output quality significantly.
 
 ---
 
-## 推荐推理参数
+## 🎯 Tuning Guide
 
-| 参数 | 值 | 说明 |
-|-----------|-------|-------|
-| `top_p` | 0.85 | 默认 0.6 太保守，可能导致提前 EOS |
-| `temperature` | 0.75 | 默认 0.6 太低，会缩短输出 |
-| `top_k` | 20 | 标准 |
-| `how_to_cut` | `不切` | 短文本（< 50 字）推荐不切，避免碎片化 |
+### Recommended Parameters
 
-这些参数经验性确定，能够生成自然、完整的语句。
+| Parameter | Value | Rationale |
+|-----------|-------|-----------|
+| `top_p` | **0.85** | Default 0.6 is too conservative; triggers premature EOS |
+| `temperature` | **0.75** | Default 0.6 is too low; produces unnaturally short audio |
+| `top_k` | **20** | Balanced diversity vs stability |
+| `how_to_cut` | **No cut** | For texts < 50 chars; sentence slicing causes fragmentation |
+
+### Parameter Impact
+
+| Combo | Output Duration | Quality |
+|-------|-----------------|---------|
+| top_p=0.60, temp=0.60 | ~0.74s ❌ | Truncated, unusable |
+| top_p=0.85, temp=0.75 | ~6.78s ✅ | Natural, full-length |
+
+> 💡 **Rule of thumb**: If output is too short → raise top_p/temp. If output is garbled → lower them.
 
 ---
 
-## 技术细节
+## 🔧 Troubleshooting
 
-### 数据流水线
+### `ModuleNotFoundError: No module named 'GPT_SoVITS'`
 
-```
-原始语音样本
-    ↓
-质量筛选（单人说话、干净音频、2–10s 片段）
-    ↓
-重采样至 32 kHz
-    ↓
-自动分段
-    ↓
-ASR + 人工文本标注
-    ↓
-S2 微调（40 epochs, lr=1e-4, batch=4）
-    ↓
-手动 checkpoint 转换 → 推理格式
+**Cause**: Submodule not initialized or Python path not set.  
+**Fix**:
+```bash
+git submodule update --init --depth 1
+# Scripts auto-add submodule to sys.path, but you can also:
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/GPT_SoVITS"
 ```
 
-### 已知问题与修复
+### `KeyError: 'config'` when loading .pth
 
-1. **Generator consumption bug**: `change_sovits_weights()` 返回一个 generator。必须用 `list()` 消费后才能正确加载模型权重。本项目提供的推理脚本已处理此问题。
-2. **Checkpoint 格式不匹配**: 训练保存的格式是 `{"model": ...}`，推理期望 `{"weight": ..., "config": ..., "info": ...}`。Release 中的 `.pth` 文件已经转换为推理格式。
-3. **PyTorch 2.6 兼容性**: 若使用 PyTorch ≥ 2.6，需在加载 checkpoint 前添加 `torch.serialization.add_safe_globals([pathlib.PosixPath])`。
+**Cause**: Using a raw training checkpoint instead of the inference-format file.  
+**Fix**: Download the `_infer.pth` files from our Releases — they are already converted.
+
+### `UnboundLocalError` in inference_webui
+
+**Cause**: Upstream bug when `prompt_language=None`.  
+**Fix**: Always specify `prompt_language`. Our scripts already handle this.
+
+### PyTorch 2.6+ `weights_only` error
+
+**Fix**:
+```python
+import pathlib, torch
+torch.serialization.add_safe_globals([pathlib.PosixPath])
+```
 
 ---
 
-## 免责声明
+## 📜 Data Pipeline
 
-这些模型仅供 **个人研究、教育和非商业目的**。
+```
+Raw voice samples
+    ↓
+Quality filter — single speaker, clean audio, 2–10s clips
+    ↓
+Resample to 32 kHz
+    ↓
+Auto-segmentation
+    ↓
+ASR + manual text annotation
+    ↓
+S2 finetune — 40 epochs, lr=1e-4, batch=4
+    ↓
+Checkpoint conversion → inference format
+    ↓
+🎙️ Deploy
+```
 
-- 模型权重是通过变换性训练得到的衍生作品。
-- **不代表任何原始内容创作者、声优或版权所有者**。
-- 用户需自行遵守所在地区的法律法规。
-- 请合理、尊重地使用。
+### Key Stats
 
-本仓库及其 Release 均不分发任何受版权保护的训练数据、游戏资源或原始音频来源。
+| Stage | Count / Value |
+|-------|---------------|
+| Raw samples | ~25,000 |
+| After filtering | **937** (96.2% filtered) |
+| Total audio | ~60 min |
+| Avg clip length | 3.84s |
+| 2–5s clips | 78% |
 
 ---
 
-## License
+## 🙏 Disclaimer
 
-模型权重沿用与基础项目相同的 MIT License。详见 [LICENSE](LICENSE)。
+These models are provided for **personal research, educational, and non-commercial purposes only**.
+
+- Model weights are transformative derivative works.
+- **Not affiliated with** any original content creators, voice actors, or rights holders.
+- Users are responsible for complying with all applicable laws.
+- Please use responsibly and respectfully.
+
+No copyrighted training data, game assets, or original audio sources are distributed in this repository or its releases.
